@@ -5,7 +5,6 @@ import { createLogger } from './logger';
 import dotenv from 'dotenv';
 dotenv.config()
 
-// Instância temporária apenas para logar a entrada/saída do middleware
 const logger = createLogger(process.env.SERVICE_NAME || 'servico-desconhecido');
 
 export const requestLoggerMiddleware = (req: Request, res: Response, next: NextFunction) => {
@@ -17,7 +16,6 @@ export const requestLoggerMiddleware = (req: Request, res: Response, next: NextF
   contextStorage.run(store, () => {
     const start = Date.now();
 
-    // Loga o request inicial
     logger.info({
       message: 'Incoming Request',
       http: { method: req.method, url: req.originalUrl }
@@ -26,7 +24,6 @@ export const requestLoggerMiddleware = (req: Request, res: Response, next: NextF
     res.on('finish', () => {
       const latencyMs = Date.now() - start;
 
-      // Loga a resposta final
       logger.info({
         message: 'Request Completed',
         http: {
