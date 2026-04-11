@@ -1,3 +1,5 @@
+// logger.ts
+
 import pino from 'pino';
 import { getCorrelationId } from './context';
 
@@ -6,7 +8,7 @@ export const createLogger = (serviceName: string) => {
     level: process.env.LOG_LEVEL || 'info',
     messageKey: 'message', 
     base: {
-      service_name: serviceName, 
+      service: serviceName, 
     },
     timestamp: pino.stdTimeFunctions.isoTime, 
     formatters: {

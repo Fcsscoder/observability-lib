@@ -1,3 +1,5 @@
+// middleware.ts
+
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { contextStorage } from './context';
@@ -30,7 +32,9 @@ export const requestLoggerMiddleware = (req: Request, res: Response, next: NextF
           method: req.method,
           url: req.originalUrl,
           status_code: res.statusCode,
-          latency_ms: latencyMs
+          latency_ms: latencyMs,
+          client_ip: req.ip,
+          user_agent: req.headers['user-agent'] || 'unknown'
         }
       });
     });
