@@ -81,8 +81,6 @@ SERVICE_NAME=meu-servico
 LOG_LEVEL=level
 ```
 
-> **Importante:** `LOG_LEVEL` não está no `.env` padrão — se omitido, o Pino usará `info`. Veja [Configuração](./advanced.md#configuração) para mais detalhes.
-
 > **Nota:** O middleware chama `dotenv.config()` automaticamente. Se a sua aplicação já realiza essa chamada antes do middleware, não haverá conflito.
 
 ---
