@@ -16,7 +16,7 @@ Essencial para diferenciar logs de múltiplos serviços no mesmo sistema de cole
  
 ### LOG_LEVEL
  
-Não está no `.env` padrão da biblioteca, mas pode ser definido pela aplicação consumidora. Define o nível mínimo de log emitido pelo Pino — logs abaixo desse nível são silenciados:
+Define o nível mínimo de log emitido pelo Pino — logs abaixo desse nível são silenciados:
  
 | Valor   | Logs emitidos                    | Indicado para                  |
 |---------|----------------------------------|--------------------------------|
@@ -43,6 +43,7 @@ LOG_LEVEL=info node server.js | npx pino-pretty
  
 ```env
 SERVICE_NAME=pedidos-service
+LOG_LEVEL=info
 ```
  
 ```bash
