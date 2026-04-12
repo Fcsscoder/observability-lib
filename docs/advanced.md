@@ -6,7 +6,7 @@
  
 ### SERVICE_NAME
  
-Nome do serviço incluído em todos os logs. É a única variável definida no `.env` padrão da biblioteca:
+Nome do serviço incluído em todos os logs.
  
 ```env
 SERVICE_NAME=pedidos-service
@@ -43,7 +43,6 @@ LOG_LEVEL=info node server.js | npx pino-pretty
  
 ```env
 SERVICE_NAME=pedidos-service
-LOG_LEVEL=info
 ```
  
 ```bash
