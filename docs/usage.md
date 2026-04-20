@@ -200,23 +200,31 @@ A partir desse ponto, toda requisição feita com `httpClient` incluirá automat
  
 ### Propagação entre microserviços
  
+```mermaid
+sequenceDiagram
+    participant Cliente
+    participant Serviço_A
+    participant Serviço_B
+
+    Cliente->>Serviço_A: Requisição inicial
+    Serviço_A->>Serviço_A: Gera correlation_id
+    Serviço_A->>Serviço_A: logInfo("Processando")
+
+    Serviço_A->>Serviço_B: GET /recurso Header: X-Correlation-ID
+    Serviço_B->>Serviço_B: Middleware reutiliza correlation_id
+    Serviço_B->>Serviço_B: log("Incoming Request")
+    Serviço_B->>Serviço_B: logInfo("Recurso encontrado")
+    Serviço_B->>Serviço_B: log("Request Completed")
+
+    Serviço_B-->>Serviço_A: Resposta
+
+    Serviço_A->>Serviço_A: logInfo("Recurso recebido")
+    Serviço_A-->>Cliente: Resposta final
 ```
-Serviço A                           Serviço B
----------                           ---------
-Recebe req → gera correlation_id
-→ logInfo("Processando")
-→ httpClient.get("/recurso")  ───→  Recebe X-Correlation-ID
-                                    → middleware reutiliza o ID
-                                    → log "Incoming Request" com mesmo correlation_id
-                                    → logInfo("Recurso encontrado")
-                                    ←─ responde
-← recebe resposta
-→ logInfo("Recurso recebido")
-→ responde ao cliente
-```
+
  
 Todos os logs dos dois serviços compartilham o mesmo `correlation_id`, permitindo rastrear a transação completa em uma única query no sistema de logs.
  
 ### Serviços receptores
  
-Para que um serviço receptor reutilize corretamente o `correlation_id` vindo de outro serviço, basta ter o `requestLoggerMiddleware` registrado — ele já lê o cabeçalho `X-Correlation-ID` automaticamente.
+Para que um serviço receptor reutilize corretamente o `correlation_id` vindo de outro serviço, basta ter o `requestLoggerMiddleware` registrado. Ele já lê o cabeçalho `X-Correlation-ID` automaticamente.
