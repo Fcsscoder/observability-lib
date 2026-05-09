@@ -7,6 +7,15 @@ import { createLogger } from './logger';
 import dotenv from 'dotenv';
 dotenv.config()
 
+if (process.env.NODE_ENV !== 'production' && !process.env.SERVICE_NAME) {
+  console.warn(
+    '[observability-lib] WARNING: SERVICE_NAME env var not set. ' +
+    'Logs will use "servico-desconhecido" as service name, making them ' +
+    'indistinguishable from other services in Loki/Grafana. ' +
+    'Set SERVICE_NAME in your .env or docker-compose.yaml.'
+  );
+}
+
 const logger = createLogger(process.env.SERVICE_NAME || 'servico-desconhecido');
 
 export const requestLoggerMiddleware = (req: Request, res: Response, next: NextFunction) => {

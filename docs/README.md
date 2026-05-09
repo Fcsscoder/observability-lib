@@ -52,7 +52,7 @@ Esta biblioteca resolve:
 npm install @fcaioss/observability-lib
 ```
 
-> Pacote publicado como `@fcaioss/observability-lib` v`1.0.6`. O ponto de entrada compilado é `dist/index.js`, com tipagens em `dist/index.d.ts`.
+> Pacote publicado como `@fcaioss/observability-lib` v`1.1.0`. O ponto de entrada compilado é `dist/index.js`, com tipagens em `dist/index.d.ts`.
 
 ### Dependências
 
@@ -74,11 +74,12 @@ Caso a sua aplicação já utilize `axios` ou `express`, verifique a compatibili
 |----------------|-------------------------|-------------|--------------------------------------------------------|
 | `SERVICE_NAME` | `servico-desconhecido`  | Recomendada | Nome do serviço incluído em todos os logs              |
 | `LOG_LEVEL`    | `info`                  | Não         | Nível mínimo de log (`info`, `warn`, `error`, `fatal`) |
+| `NODE_ENV`     | —                       | Recomendada | Ambiente de execução; habilita avisos de configuração em não-produção |
 
 
 ```env
 SERVICE_NAME=meu-servico
-LOG_LEVEL=level
+LOG_LEVEL=info
 ```
 
 > **Nota:** O middleware chama `dotenv.config()` automaticamente. Se a sua aplicação já realiza essa chamada antes do middleware, não haverá conflito.

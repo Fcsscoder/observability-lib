@@ -19,14 +19,14 @@ Todos os logs são emitidos em formato JSON com os seguintes campos:
  
 ### Campos do objeto `http`
  
-| Campo         | Presente em          | Descrição                        |
-|---------------|----------------------|----------------------------------|
-| `method`      | Todos os logs        | Método HTTP (`GET`, `POST`, ...) |
-| `url`         | Todos os logs        | URL da requisição                |
-| `status_code` | Log de saída         | Código HTTP da resposta          |
-| `latency_ms`  | Log de saída         | Tempo total de processamento     |
-| `client_ip`   | Log de saída         | IP do cliente                    |
-| `user_agent`  | Log de saída         | User-Agent do cliente            |
+| Campo         | Presente em                       | Descrição                        |
+|---------------|-----------------------------------|----------------------------------|
+| `method`      | Todos os logs HTTP                | Método HTTP (`GET`, `POST`, ...) |
+| `url`         | Todos os logs HTTP                | URL da requisição                |
+| `status_code` | Log de saída (middleware)         | Código HTTP da resposta          |
+| `latency_ms`  | Log de saída (middleware)         | Tempo total de processamento     |
+| `client_ip`   | Log de saída e helpers (`logInfo`, `logWarn`, `logError`, `logFatal`) | IP do cliente |
+| `user_agent`  | Log de saída e helpers (`logInfo`, `logWarn`, `logError`, `logFatal`) | User-Agent do cliente |
  
 ---
  
@@ -63,7 +63,9 @@ Gerado pelo controller via `logInfo`.
   "message": "Pedido criado com sucesso",
   "http": {
     "method": "POST",
-    "url": "/pedidos"
+    "url": "/pedidos",
+    "client_ip": "192.168.1.100",
+    "user_agent": "axios/1.6.0"
   },
   "metadata": {
     "pedido_id": "PED-9823",

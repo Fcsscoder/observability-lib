@@ -5,3 +5,4 @@ export * from './logger';
 export * from './middleware';
 export * from './axios-plugin';
 export * from './logger-helpers';
+export * from './integration';
