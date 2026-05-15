@@ -310,26 +310,33 @@ A partir desse ponto, toda requisição feita com `httpClient` incluirá automat
  
 ### Propagação entre microserviços
  
+**1. Geração do `correlation_id` no serviço de entrada:**
+
 ```mermaid
 sequenceDiagram
     participant Cliente
     participant Serviço_A
-    participant Serviço_B
 
     Cliente->>Serviço_A: Requisição inicial
-    Serviço_A->>Serviço_A: Gera correlation_id
+    Serviço_A->>Serviço_A: Gera correlation_id (uuid)
     Serviço_A->>Serviço_A: logInfo("Processando")
+    Serviço_A-->>Cliente: Resposta final
+```
 
-    Serviço_A->>Serviço_B: GET /recurso Header: X-Correlation-ID
+**2. Propagação para serviços downstream:**
+
+```mermaid
+sequenceDiagram
+    participant Serviço_A
+    participant Serviço_B
+
+    Serviço_A->>Serviço_B: GET /recurso (X-Correlation-ID)
     Serviço_B->>Serviço_B: Middleware reutiliza correlation_id
     Serviço_B->>Serviço_B: log("Incoming Request")
     Serviço_B->>Serviço_B: logInfo("Recurso encontrado")
     Serviço_B->>Serviço_B: log("Request Completed")
-
     Serviço_B-->>Serviço_A: Resposta
-
     Serviço_A->>Serviço_A: logInfo("Recurso recebido")
-    Serviço_A-->>Cliente: Resposta final
 ```
 
  

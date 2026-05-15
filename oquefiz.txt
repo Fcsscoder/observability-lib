@@ -1,1 +1,0 @@
-adicionei o cliet_ip e o user_agent nos helpers
