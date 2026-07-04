@@ -33,7 +33,7 @@ app.use(requestLoggerMiddleware); // ❌ Middleware DEPOIS — não gera logs pa
 app.use(globalErrorHandler);
 ```
 
-**Consequência:** Nenhuma rota gera `"Incoming Request"` ou `"Request Completed"`. O `correlation_id` não é criado e todas as chamadas a helpers (`logInfo`, etc.) não terão `correlation_id` nos logs.
+**Consequência:** Nenhuma rota gera `"Request Completed"`. O `correlation_id` não é criado e todas as chamadas a helpers (`logInfo`, etc.) não terão `correlation_id` nos logs.
 
 ### ✅ CORRETO — Middleware registrado antes das rotas
 
@@ -60,8 +60,9 @@ O middleware realiza automaticamente:
 
 - Extração ou geração do `correlation_id` (via cabeçalho `X-Correlation-ID` ou `uuidv4()`)
 - Inicialização do `AsyncLocalStorage` com o `correlation_id`
-- Log de `"Incoming Request"` com `method` e `url`
 - Log de `"Request Completed"` com `status_code`, `latency_ms`, `client_ip` e `user_agent` (via evento `finish` da resposta)
+
+> **Nota:** As rotas de infraestrutura `/health` e `/metrics` são ignoradas pelo middleware (não geram `"Request Completed"` nem inicializam contexto), para evitar ruído no Loki.
 
 ---
 
@@ -335,7 +336,6 @@ sequenceDiagram
 
     Serviço_A->>Serviço_B: GET /recurso (X-Correlation-ID)
     Serviço_B->>Serviço_B: Middleware reutiliza correlation_id
-    Serviço_B->>Serviço_B: log("Incoming Request")
     Serviço_B->>Serviço_B: logInfo("Recurso encontrado")
     Serviço_B->>Serviço_B: log("Request Completed")
     Serviço_B-->>Serviço_A: Resposta

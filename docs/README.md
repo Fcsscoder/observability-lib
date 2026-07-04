@@ -113,7 +113,7 @@ Requisição → contextStorage.run(store, ...) → toda a cadeia async tem aces
 
 | Tipo               | Gerado por                                           | Exemplo                                             |
 |--------------------|------------------------------------------------------|-----------------------------------------------------|
-| **Infraestrutura** | Middleware (`requestLoggerMiddleware`)                | `"Incoming Request"`, `"Request Completed"`         |
+| **Infraestrutura** | Middleware (`requestLoggerMiddleware`)                | `"Request Completed"`                               |
 | **Negócio**        | Helpers (`logInfo`, `logWarn`, etc.) nos controllers | `"Pedido criado com sucesso"`, `"CPF inválido"`     |
 
 Os logs de infraestrutura são automáticos e capturam a camada HTTP. Os logs de negócio devem ser adicionados manualmente onde houver eventos relevantes da aplicação.
@@ -145,11 +145,7 @@ O cliente HTTP envia uma requisição para o servidor. O Express a encaminha par
 
 Um `Map` é criado com a chave `correlation_id` e armazenado no `contextStorage` via `contextStorage.run(store, callback)`. A partir desse ponto, toda execução assíncrona derivada tem acesso ao store.
 
-**4. Log de entrada é registrado**
-
-Ainda dentro do `contextStorage.run`, o logger registra `"Incoming Request"` com `method` e `url`. O `correlation_id` é injetado automaticamente pelo `mixin` do Pino.
-
-**5. Controller executa e usa helpers**
+**4. Controller executa e usa helpers**
 
 O controller recebe `req` e utiliza os helpers (`logInfo`, `logWarn`, `logError`, `logFatal`) para registrar eventos de negócio. O `correlation_id` continua disponível via `AsyncLocalStorage`.
 
@@ -188,11 +184,6 @@ sequenceDiagram
 
     Middleware->>ALS: contextStorage.run(store { correlation_id })
     Note over ALS: Contexto disponível para toda a cadeia async
-
-    Middleware->>Logger: logger.info("Incoming Request", { method, url })
-    Logger->>ALS: mixin() → getCorrelationId()
-    ALS-->>Logger: correlation_id
-    Logger-->>Middleware: Log emitido com correlation_id
 
     Middleware->>Controller: next() → execução do controller
 

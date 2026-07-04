@@ -32,24 +32,6 @@ Todos os logs são emitidos em formato JSON com os seguintes campos:
  
 ## Exemplos de Logs
  
-### Log de entrada (INFO)
- 
-Gerado automaticamente pelo middleware ao receber a requisição.
- 
-```json
-{
-  "level": "INFO",
-  "time": "2024-01-15T10:30:00.123Z",
-  "service": "pedidos-service",
-  "correlation_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  "message": "Incoming Request",
-  "http": {
-    "method": "POST",
-    "url": "/pedidos"
-  }
-}
-```
- 
 ### Log de negócio (INFO com metadata)
  
 Gerado pelo controller via `logInfo`.
@@ -164,7 +146,7 @@ Os helpers garantem que `method`, `url` e a estrutura padrão estejam sempre pre
  
 ### Não duplique logs entre middleware e controller
  
-O middleware já loga `"Incoming Request"` e `"Request Completed"`. Evite recriar esses logs nos controllers.
+O middleware já loga `"Request Completed"`. Evite recriar esse log nos controllers.
  
 ```typescript
 // Desnecessário — o middleware já faz isso
