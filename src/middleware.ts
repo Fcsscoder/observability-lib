@@ -19,7 +19,8 @@ if (process.env.NODE_ENV !== "production" && !process.env.SERVICE_NAME) {
 const logger = createLogger(process.env.SERVICE_NAME || "servico-desconhecido");
 
 // Rotas de infraestrutura (health checks e scraping de métricas) geram ruído
-// no Loki sem valor de observabilidade, então não são logadas.
+// no Loki sem valor de observabilidade quando estão OK, então só são logadas
+// em caso de falha (status >= 400) — sinal de mal funcionamento do serviço.
 const LOG_IGNORED_PATHS = new Set(["/health", "/metrics"]);
 
 export const requestLoggerMiddleware = (
@@ -27,9 +28,7 @@ export const requestLoggerMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
-  if (LOG_IGNORED_PATHS.has(req.path)) {
-    return next();
-  }
+  const isInfraPath = LOG_IGNORED_PATHS.has(req.path);
 
   const correlationId = (req.headers["x-correlation-id"] as string) || uuidv4();
 
@@ -45,9 +44,12 @@ export const requestLoggerMiddleware = (
     // });
 
     res.on("finish", () => {
-      const latencyMs = Date.now() - start;
+      if (isInfraPath && res.statusCode < 400) {
+        return;
+      }
 
-      logger.info({
+      const latencyMs = Date.now() - start;
+      const payload = {
         message: "Request Completed",
         http: {
           method: req.method,
@@ -57,7 +59,13 @@ export const requestLoggerMiddleware = (
           client_ip: req.ip,
           user_agent: req.headers["user-agent"] || "unknown",
         },
-      });
+      };
+
+      if (isInfraPath && res.statusCode >= 400) {
+        logger.warn(payload);
+      } else {
+        logger.info(payload);
+      }
     });
 
     next();

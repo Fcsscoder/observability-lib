@@ -62,7 +62,7 @@ O middleware realiza automaticamente:
 - Inicialização do `AsyncLocalStorage` com o `correlation_id`
 - Log de `"Request Completed"` com `status_code`, `latency_ms`, `client_ip` e `user_agent` (via evento `finish` da resposta)
 
-> **Nota:** As rotas de infraestrutura `/health` e `/metrics` são ignoradas pelo middleware (não geram `"Request Completed"` nem inicializam contexto), para evitar ruído no Loki.
+> **Nota:** As rotas de infraestrutura `/health` e `/metrics` só geram log `"Request Completed"` quando a resposta falha (`status_code >= 400`, nível `WARN`) — evita ruído no Loki quando o healthcheck/scrape está OK, mas ainda registra quando o serviço está com mal funcionamento.
 
 ---
 

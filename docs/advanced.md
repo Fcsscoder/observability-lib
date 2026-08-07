@@ -138,7 +138,7 @@ O Pino é um dos loggers mais performáticos para Node.js, com serialização JS
  
 - **Volume de logs:** Em produção com alto tráfego, `LOG_LEVEL=warn` pode reduzir significativamente o volume sem perder eventos críticos.
 - **Metadata pesado:** Evite serializar objetos grandes ou listas extensas no `metadata`. Prefira identificadores e valores escalares.
-- **Endpoints de alta frequência:** As rotas `/health` e `/metrics` já são ignoradas pelo `requestLoggerMiddleware` (não geram logs de infraestrutura). Para outros endpoints ruidosos, considere sampling (ex: logar 1 em cada 100 requisições).
+- **Endpoints de alta frequência:** As rotas `/health` e `/metrics` só geram log pelo `requestLoggerMiddleware` quando falham (`status_code >= 400`) — tráfego de sucesso não gera log de infraestrutura. Para outros endpoints ruidosos, considere sampling (ex: logar 1 em cada 100 requisições).
 - **I/O assíncrono:** O Pino escreve no `stdout` de forma assíncrona por padrão, minimizando o impacto no event loop do Node.js.
  
 ---
