@@ -23,6 +23,22 @@ const logger = createLogger(process.env.SERVICE_NAME || "servico-desconhecido");
 // em caso de falha (status >= 400) — sinal de mal funcionamento do serviço.
 const LOG_IGNORED_PATHS = new Set(["/health", "/metrics"]);
 
+const INSTALLATION_ID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/**
+ * Extrai o Installation ID do header, aceitando apenas UUID v4 canônico.
+ *
+ * O header vem do cliente e não é confiável. Sem a validação, qualquer um
+ * poderia injetar texto arbitrário no log — inflando cardinalidade no Loki e
+ * abrindo espaço para log injection. Valor inválido é descartado em silêncio:
+ * a função nunca lança, e a requisição segue normalmente (R8).
+ */
+const readInstallationId = (raw: unknown): string | undefined => {
+  if (typeof raw !== "string" || raw.length > 64) return undefined;
+  return INSTALLATION_ID_RE.test(raw) ? raw.toLowerCase() : undefined;
+};
+
 export const requestLoggerMiddleware = (
   req: Request,
   res: Response,
@@ -34,6 +50,9 @@ export const requestLoggerMiddleware = (
 
   const store = new Map<string, string>();
   store.set("correlation_id", correlationId);
+
+  const installationId = readInstallationId(req.headers["x-installation-id"]);
+  if (installationId) store.set("installation_id", installationId);
 
   contextStorage.run(store, () => {
     const start = Date.now();

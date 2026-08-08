@@ -12,6 +12,7 @@ Todos os logs são emitidos em formato JSON com os seguintes campos:
 | `time`           | `string` | Timestamp ISO 8601 (ex: `2024-01-15T10:30:00.000Z`)                          |
 | `service`        | `string` | Nome do serviço definido em `SERVICE_NAME`                                   |
 | `correlation_id` | `string` | UUID da requisição, injetado automaticamente via `mixin` do Pino             |
+| `installation_id`| `string` | UUID v4 da instalação do app, quando o cliente envia `X-Installation-Id` válido. **Opcional** — ausente quando o header não vem ou é inválido |
 | `message`        | `string` | Descrição do evento (chave `message`, não `msg`)                             |
 | `http`           | `object` | Dados HTTP da requisição/resposta (ver detalhes abaixo)                      |
 | `metadata`       | `object` | Dados adicionais específicos do contexto, passados via helpers               |
@@ -250,3 +251,30 @@ O serializer do Pino espera uma instância de `Error`. Evite passar strings ou o
 }
 ```
  
+---
+
+## `installation_id` — identidade da instalação
+
+Desde a **v1.4.0**, o middleware lê o header `X-Installation-Id` e o disponibiliza
+no contexto da requisição (`getInstallationId()`), de onde o `mixin` do Pino o
+injeta em todo log daquela requisição.
+
+O campo identifica a **instalação do app**, não a pessoa. Ele existe porque, com a
+autenticação desligada, os logs perderam o identificador que correlacionava
+requisições de um mesmo aparelho.
+
+### Regras
+
+| Regra | Motivo |
+|---|---|
+| Só UUID v4 canônico é aceito; até 64 bytes | O header vem do cliente. Sem validação, qualquer um injeta texto arbitrário no log — cardinalidade no Loki e log injection |
+| Valor inválido é descartado em silêncio | A validação nunca lança; a requisição segue normalmente (R8) |
+| Normalizado para minúsculas | Evita que o mesmo aparelho vire dois na telemetria |
+| **Nunca** usar em decisão de autorização | É telemetria. Um header de cliente não autentica ninguém |
+| No Loki, sempre *structured metadata*, **nunca** label | Como label, criaria um stream por instalação — explosão de cardinalidade |
+
+### Consultando no Loki
+
+```logql
+{service="main-service"} | installation_id = "3f2504e0-4f89-41d3-9a0c-0305e82c3301"
+```

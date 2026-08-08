@@ -11,6 +11,20 @@ export const getCorrelationId = (): string | undefined => {
 };
 
 /**
+ * Installation ID da requisição corrente, quando o cliente enviou um
+ * `X-Installation-Id` válido.
+ *
+ * Identifica a INSTALAÇÃO do app, não a pessoa: é o que permite correlacionar
+ * requisições de um mesmo aparelho quando não há identidade de usuário.
+ *
+ * **É telemetria — nunca use em decisão de autorização.**
+ */
+export const getInstallationId = (): string | undefined => {
+  const store = contextStorage.getStore();
+  return store?.get('installation_id');
+};
+
+/**
  * Executa fn dentro de um contexto com correlation_id definido.
  * Use em workers, cron jobs e eventos assíncronos sem req HTTP.
  *

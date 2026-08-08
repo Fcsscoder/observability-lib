@@ -1,7 +1,7 @@
 // logger.ts
 
 import pino from 'pino';
-import { getCorrelationId } from './context';
+import { contextStorage } from './context';
 
 export const createLogger = (serviceName: string) => {
   return pino({
@@ -14,9 +14,16 @@ export const createLogger = (serviceName: string) => {
     formatters: {
       level: (label) => ({ level: label.toUpperCase() }), 
     },
+    // Uma única leitura do store por log: correlation_id e installation_id vêm
+    // do mesmo contexto, e cada campo só entra no payload quando existe.
     mixin: () => {
-      const correlationId = getCorrelationId();
-      return correlationId ? { correlation_id: correlationId } : {};
+      const store = contextStorage.getStore();
+      const correlationId = store?.get('correlation_id');
+      const installationId = store?.get('installation_id');
+      return {
+        ...(correlationId && { correlation_id: correlationId }),
+        ...(installationId && { installation_id: installationId }),
+      };
     },
 
     redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password', 'body.token'],
