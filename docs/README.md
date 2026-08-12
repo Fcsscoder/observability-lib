@@ -189,9 +189,9 @@ sequenceDiagram
 
     Controller->>Helpers: logInfo(req, "Evento de negócio", metadata)
     Helpers->>Logger: logger.info({ message, http, metadata })
-    Logger->>ALS: mixin() → getCorrelationId()
-    ALS-->>Logger: correlation_id
-    Logger-->>Helpers: Log emitido com correlation_id
+    Logger->>ALS: mixin() → contextStorage.getStore()
+    ALS-->>Logger: correlation_id, installation_id
+    Logger-->>Helpers: Log emitido com correlation_id e installation_id
 
     opt Chamada para serviço externo
         Controller->>Axios: axios.get("https://outro-servico/api")
@@ -205,8 +205,8 @@ sequenceDiagram
     opt Erro no controller
         Controller->>Helpers: logError(req, "Descrição do erro", error, metadata)
         Helpers->>Logger: logger.error({ message, http, error, metadata })
-        Logger->>ALS: mixin() → getCorrelationId()
-        ALS-->>Logger: correlation_id
+        Logger->>ALS: mixin() → contextStorage.getStore()
+        ALS-->>Logger: correlation_id, installation_id
         Logger-->>Helpers: Log de erro emitido
     end
 
@@ -215,9 +215,9 @@ sequenceDiagram
 
     Note over Middleware: res.on("finish") é disparado
     Middleware->>Logger: logger.info("Request Completed", { status_code, latency_ms, client_ip, user_agent })
-    Logger->>ALS: mixin() → getCorrelationId()
-    ALS-->>Logger: correlation_id
-    Logger-->>Middleware: Log de saída emitido com correlation_id
+    Logger->>ALS: mixin() → contextStorage.getStore()
+    ALS-->>Logger: correlation_id, installation_id
+    Logger-->>Middleware: Log de saída emitido com correlation_id e installation_id
 ```
 
 ---
